@@ -73,17 +73,18 @@ for row in range(15):
     for column in range(15):
         grid[row].append(0)  # Append a cell
  
-# Set row 1, cell 5 to one.
+
 grid[1][10] = 1
+#grid array
  
 # Initialize pygame
 pygame.init()
  
-# Set the HEIGHT and WIDTH of the screen
+#Window size for pygame 
 WINDOW_SIZE = [1920, 1080]
 screen = pygame.display.set_mode(WINDOW_SIZE, pygame.FULLSCREEN)
  
-# Set title of screen
+#Set title for screen
 pygame.display.set_caption("Scrabble Game")
  
 done = False
@@ -183,37 +184,35 @@ class Bag:
         shuffle(self.bag)
 
     def take_from_bag(self):
-        #Removes a tile from the bag and returns it to the user. This is used for replenishing the rack.
+        #Removes tile from the bag and returns it to user, used for replenishing tile-rack.
         return self.bag.pop()
 
     def get_remaining_tiles(self):
-        #Returns the number of tiles left in the bag.
+        #Returns integer number of tiles left in bag.
         return len(self.bag)
 
 class Rack:
-    """
-    Creates each player's 'dock', or 'hand'. Allows players to add, remove and replenish the number of tiles in their hand.
-    """
     def __init__(self, bag):
-        #Initializes the player's rack/hand. Takes the bag from which the racks tiles will come as an argument.
+       #Initialise rack class.
         self.rack = []
         self.bag = bag
         self.initialize()
 
     def add_to_rack(self):
-        #Takes a tile from the bag and adds it to the player's rack.
+        #Takes tile from the bag and adds it to the rack.
         self.rack.append(self.bag.take_from_bag())
 
     def initialize(self):
-        #Adds the initial 7 tiles to the player's hand.
+        #Adds 7 letters to the rack.
         for i in range(7):
             self.add_to_rack()
 
     def get_rack_str(self):
-        #Displays the user's rack in string form.
+        #Returns string of the rack of the current user.
         return ", ".join(str(item.get_letter()) for item in self.rack)
     
     def get_rack_list(self):
+        #Returns the rack of the current user in list form.
         letterlist=[]
         for item in self.rack:
             letterlist.append(str(item.get_letter()))
@@ -221,35 +220,31 @@ class Rack:
         
 
     def get_rack_arr(self):
-        #Returns the rack as an array of tile instances
+        #Returns the rack of the current user as a list of tile class objects.
         return self.rack
 
     def remove_from_rack(self, tile):
-        #Removes a tile from the rack (for example, when a tile is being played).
+        #Removes a tile from the rack for the current user.
         self.rack.remove(tile)
 
     def get_rack_length(self):
-        #Returns the number of tiles left in the rack.
+        #Returns the number of tiles left in the rack as an integer.
         return len(self.rack)
 
     def replenish_rack(self):
-        #Adds tiles to the rack after a turn such that the rack will have 7 tiles (assuming a proper number of tiles in the bag).
+        #Makes sure the current user has 7 letters.
         while self.get_rack_length() < 7 and self.bag.get_remaining_tiles() > 0:
             self.add_to_rack()
 
 class Player:
-    """
-    Creates an instance of a player. Initializes the player's rack, and allows you to set/get a player name.
-    """
     def __init__(self, bag):
-        #Intializes a player instance. Creates the player's rack by creating an instance of that class.
-        #Takes the bag as an argument, in order to create the rack.
+        #Constructor method for the player class, creates an instance of the rack class for each user.
         self.name = ""
         self.rack = Rack(bag)
         self.score = 0
 
     def set_name(self, name):
-        #Sets the player's name.
+        #Sets the name for the player.
         self.name = name
 
     def get_name(self):
@@ -257,37 +252,36 @@ class Player:
         return self.name
 
     def get_rack_str(self):
-        #Returns the player's rack.
+        #Returns the player's tile-rack.
         return self.rack.get_rack_str()
 
     def get_rack_arr(self):
-        #Returns the player's rack in the form of an array.
+        #Returns the player's tile-rack as an array.
         return self.rack.get_rack_arr()
     
     def get_rack_list(self):
         return self.rack.get_rack_list()
+        #Returns the player's tile-rack as a list.
     
     def increase_score(self, increase):
-        #Increases the player's score by a certain amount. Takes the increase (int) as an argument and adds it to the score.
+        #Increases the player's score by integer 'increase'
         self.score += increase
 
     def get_score(self):
-        #Returns the player's score
+        #Returns the score of the player.
         return self.score
 
 class Board:
-    """
-    Creates the scrabble board.
-    """
     def __init__(self):
-        #Creates a 2-dimensional array that will serve as the board, as well as adds in the premium squares.
+        #Constructor method for the board
+        #Creates a 2d array which will act as the Scrabble board, including premium squares.
         self.board = [["   " for i in range(15)] for j in range(15)]
         self.add_premium_squares()
         self.board[7][7] = " * "
 
     def get_board(self):
         text=""
-        #Returns the board in string form.
+        #Returns the board as a string.
         board_str = "   |  " + "  |  ".join(str(item) for item in range(10)) + "  | " + "  | ".join(str(item) for item in range(10, 15)) + " |"
         board_str += "\n   _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n"
         boardView=list(self.board)
@@ -302,20 +296,10 @@ class Board:
         selectBox=0
         
         for event in pygame.event.get():
-                # Feed it with events every frame
-                # Blit its surface onto the screen
-            if event.type == pygame.QUIT:  # If user clicked close
-                done = True  # Flag that we are done so we exit this loop
-            #if event.type == pygame.MOUSEBUTTONDOWN:
-
-                #pos = pygame.mouse.get_pos()
-
-                #column = pos[0] // (WIDTH + MARGIN)
-                #row = pos[1] // (HEIGHT + MARGIN)
-
-                #grid[row][column] = "1"
-                #print("Click ", pos, "Grid coordinates: ", row, column)
-                        
+                # Check for event using pygame functionality every frame.
+            if event.type == pygame.QUIT:  #If event is to quit pygame - 
+                done = True
+                
                         
 
                     
@@ -343,7 +327,7 @@ class Board:
                     
 
          
-            # Limit to 60 frames per second
+            #Tick 60 frames per second using pygame, update display.
             clock.tick(60)
             pygame.display.flip()
             pygame.display.update()
@@ -351,7 +335,7 @@ class Board:
         return board_str
 
     def add_premium_squares(self):
-        #Adds all of the premium squares that influence the word's score.
+        #Sets the premium squares which can adjust the score of the placed word.
         TRIPLE_WORD_SCORE = ((0,0), (7, 0), (14,0), (0, 7), (14, 7), (0, 14), (7, 14), (14,14))
         DOUBLE_WORD_SCORE = ((1,1), (2,2), (3,3), (4,4), (1, 13), (2, 12), (3, 11), (4, 10), (13, 1), (12, 2), (11, 3), (10, 4), (13,13), (12, 12), (11,11), (10,10))
         TRIPLE_LETTER_SCORE = ((1,5), (1, 9), (5,1), (5,5), (5,9), (5,13), (9,1), (9,5), (9,9), (9,13), (13, 5), (13,9))
@@ -359,35 +343,41 @@ class Board:
 
         for coordinate in TRIPLE_WORD_SCORE:
             self.board[coordinate[0]][coordinate[1]] = "***"
+        #Triple the score of the word.
         for coordinate in TRIPLE_LETTER_SCORE:
             self.board[coordinate[0]][coordinate[1]] = "'''"
+        #Triple the score of the current tile.
         for coordinate in DOUBLE_WORD_SCORE:
             self.board[coordinate[0]][coordinate[1]] = "**"
+        #Double the score of the word.
         for coordinate in DOUBLE_LETTER_SCORE:
             self.board[coordinate[0]][coordinate[1]] = "''"
+        #Double the score of the current tile.
 
     def place_word(self, word, location, direction, player):
-        #Allows you to play words, assuming that they have already been confirmed as valid.
+        #After validation of the word using check_word, this method places the word on the board.
         global premium_spots
         premium_spots = []
         direction = direction.lower()
         word = word.upper()
 
-        #Places the word going rightwards
+        #Places the word going right.
         if direction.lower() == "right":
             for i in range(len(word)):
                 if self.board[location[0]][location[1]+i] != "   ":
                     premium_spots.append((word[i], self.board[location[0]][location[1]+i]))
                 self.board[location[0]][location[1]+i] = " " + word[i] + " "
 
-        #Places the word going downwards
+        #Places the word going down.
         elif direction.lower() == "down":
             for i in range(len(word)):
                 if self.board[location[0]][location[1]+i] != "   ":
                     premium_spots.append((word[i], self.board[location[0]][location[1]+i]))
                 self.board[location[0]+i][location[1]] = " " + word[i] + " "
 
-        #Removes tiles from player's rack and replaces them with tiles from the bag.
+        #Removes tiles from the rack of the current player and replenishes the rack with letters from the bag
+        #Ensures 7 letters are in the rack.
+                
         for letter in word:
             for tile in player.get_rack_arr():
                 if tile.get_letter() == letter:
@@ -395,10 +385,11 @@ class Board:
         player.rack.replenish_rack()
 
     def board_array(self):
-        #Returns the 2-dimensional board array.
+        #Returns the two-dimensional array of the board.
         return self.board
 
 class Word:
+    #Constructor method for the board.
     def __init__(self, word, location, player, direction, board):
         self.word = word.upper()
         self.location = location
@@ -407,8 +398,8 @@ class Word:
         self.board = board
 
     def check_word(self):
-        #Checks the word to make sure that it is in the dictionary, and that the location falls within bounds.
-        #Also controls the overlapping of words.
+        #The code verifies whether the word is in the dictionary "dic.txt"
+        # and its location is valid. It manages potential word overlapping.
         global round_number, players
         word_score = 0
         global dictionary 
@@ -420,8 +411,11 @@ class Word:
         blank_tile_val = ""
 
 
-        if self.word in boardWords:
-            return "Error: invalid."
+        #If the word is already played, it cannot be played again.
+        #if self.word in boardWords:
+            #return "Error: invalid."
+
+        #If the word to be played is already played and the previously played word is not a substring of the word, it cannot be played.
         for i in range(0,len(boardWords)-1):
             for j in range(1,len(boardWords[i])-1):
                 if self.word in boardWords[i] and boardWords[i] not in self.word:
