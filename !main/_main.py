@@ -421,25 +421,13 @@ class Word:
                 if self.word in boardWords[i] and boardWords[i] not in self.word:
                     return "Error: invalid." 
 
-        #Assuming that the player is not skipping the turn:
+        #If the input does not contain a value to skip a turn: 
         if self.word != "":
+            
 
-            #Allows for players to declare the value of a blank tile.
-            if "#" in self.word:
-                while len(blank_tile_val) != 1:
-                    blank_tile_val = input("Please enter the letter value of the blank tile: ")
-                self.word = self.word[:word.index("#")] + blank_tile_val.upper() + self.word[(word.index("#")+1):]
-
-            #Reads in the board's current values under where the word that is being played will go. Raises an error if the direction is not valid.
             if self.direction == "right":
-                #for i in self.board[self.location[1]+1]:
-
-                    #if (i.strip().isupper() or i.strip().islower()):# and i not in tileArr and self.word.split()[i] != self.word.split()[0]:
-                        #return "Error: adjacent letters in column"
-                #for i in self.board[self.location[1]+1]:
-
-                    #if (i.strip().isupper() or i.strip().islower()) and i not in tileArr and self.word.split()[i] != self.word.split()[0]:
-                        #return "Error: adjacent letters in row"
+                #Further validation of the word, using try statement to handle potential errors of the attempted word.
+                #Validation for attempted "right" and "down" placement respectively.
                 try:
                     for i in range(len(self.word)):
                         if self.board[self.location[0]][self.location[1]+i][1] == " " or self.board[self.location[0]][self.location[1]+i] == "'''" or self.board[self.location[0]][self.location[1]+i] == "***" or self.board[self.location[0]][self.location[1]+i] == "''" or self.board[self.location[0]][self.location[1]+i] == "**" or self.board[self.location[0]][self.location[1]+i][1] == "*":
@@ -450,12 +438,6 @@ class Word:
                     return "Error: invalid."
 
             elif self.direction == "down":
-                #for i in self.board[self.location[0]+1]:
-                    #if (i.strip().isupper() or i.strip().islower()): #and i not in tileArr and self.word.split()[i] != self.word.split()[0]:
-                        #return "Error: adjacent letters in row"
-                #for i in self.board[self.location[0]+1]:
-                   #if (i.strip().isupper() or i.strip().islower()) and i not in tileArr and self.word.split()[i] != self.word.split()[0]:
-                        #return "Error: adjacent letters in column"
 
                 try:
                     for i in range(len(self.word)):
@@ -468,16 +450,16 @@ class Word:
                 except:
                     return "Error: invalid."
 
-
-  
             else:
+                #Returns an error code if the attempted word does not have a valid direction.
                 return "Error: please enter a valid direction."
 
-            #Raises an error if the word being played is not in the official scrabble dictionary (dic.txt).
+            
             if self.word not in dictionary:
+                #Returns an error code if the attempted word is not in the dictionary.
                 return "Please enter a valid dictionary word.\n"
 
-            #Ensures that the words overlap correctly. If there are conflicting letters between the current board and the word being played, raises an error.
+            #Ensures the validation of overlapping words, according to the rules of Scrabble.
             for i in range(len(self.word)):
                 if current_board_ltr[i] == " ":
                     needed_tiles += self.word[i]
@@ -485,32 +467,29 @@ class Word:
                     print("Current_board_ltr: " + str(current_board_ltr) + ", Word: " + self.word + ", Needed_Tiles: " + needed_tiles)
                     return "The letters do not overlap correctly, please choose another word."
 
-            #If there is a blank tile, remove it's given value from the tiles needed to play the word.
-            if blank_tile_val != "":
-                needed_tiles = needed_tiles[needed_tiles.index(blank_tile_val):] + needed_tiles[:needed_tiles.index(blank_tile_val)]
 
-            #Ensures that the word will be connected to other words on the playing board.
+            #Ensures the connection of the word to be placed with the currently placed words on the board, according to the rules of Scrabble.
             if (round_number != 1 or (round_number == 1 and players[0] != self.player)) and current_board_ltr == " " * len(self.word):
                 print("Current_board_ltr: " + str(current_board_ltr) + ", Word: " + self.word + ", Needed_Tiles: " + needed_tiles)
                 return "Please connect the word to a previously played letter."
 
-            #Raises an error if the player does not have the correct tiles to play the word.
+            #Returns an error if the current player does not have the correct tiles for the word.
             for letter in needed_tiles:
                 if letter not in self.player.get_rack_str() or self.player.get_rack_str().count(letter) < needed_tiles.count(letter):
                     return "You do not have the tiles for this word\n"
 
-            #Raises an error if the location of the word will be out of bounds.
+            #Returns an error if the location is not wiithin the board.
             if self.location[0] > 14 or self.location[1] > 14 or self.location[0] < 0 or self.location[1] < 0 or (self.direction == "down" and (self.location[0]+len(self.word)-1) > 14) or (self.direction == "right" and (self.location[1]+len(self.word)-1) > 14):
                 return "Location out of bounds.\n"
 
-            #Ensures that first turn of the game will have the word placed at (7,7).
+            #Ensures that the first turn can only be played from the centre of the board, 7, 7
             if round_number == 1 and players[0] == self.player and self.location != [7,7]:
                 return "The first turn must begin at location (7, 7).\n"
             return True
 
-        #If the user IS skipping the turn, confirm. If the user replies with "Y", skip the player's turn. Otherwise, allow the user to enter another word.
+        #Ensures that first turn cannot be skipped.
         else:
-            if True:#input("Are you sure you would like to skip your turn? (y/n)").upper() == "Y":
+            if True:
                 if round_number == 1 and players[0] == self.player:
                     return "Please do not skip the first turn. Please enter a word."
                 return True
@@ -518,7 +497,7 @@ class Word:
                 return "Please enter a word."
 
     def calculate_word_score(self):
-        #Calculates the score of a word, allowing for the impact by premium squares.
+        #Calculates the score of the word, accounting for premium squares.
         global LETTER_VALUES, premium_spots
         word_score = 0
         for letter in self.word:
@@ -538,28 +517,28 @@ class Word:
 
     def set_word(self, word):
         self.word = word.upper()
+        #Method to force set of a word class instance.
 
     def set_location(self, location):
         self.location = location
+        #Method to force location of a word class instance.
 
     def set_direction(self, direction):
         self.direction = direction
+        #Method to force set direction of word class instance.
 
     def get_word(self):
+        #Gets word class instance.
         
         return self.word
 
 
+
+
 def splitIt(word):
+    #Defines splitIt function which returns a list of the characters within a word for the AI to handle word generation.
     return [char for char in word]
                      
-
-
-
-
-
-
-
 
 
 
@@ -570,28 +549,34 @@ def splitIt(word):
 
 
 
-
+#Turn function: plays for each turn, switching between players.
 def turn(player, board, bag):
+    
+    #Updates screen.
     clock.tick(60)
     pygame.display.flip()
     pygame.display.update()
-    #Begins a turn, by displaying the current board, getting the information to play a turn, and creates a recursive loop to allow the next person to play.
+    
+    #Begins the turn, displays board on screen and starts the start of the game.
+    #Creates a recursive loop by calling this method for each player to play (Including AI)
+    
     global round_number, players, skipped_turns
-    #If the number of skipped turns is less than 6 and a row, and there are either tiles in the bag, or no players have run out of tiles, play the turn.
-    #Otherwise, end the game.
+
     if (skipped_turns < 6) or (player.rack.get_rack_length() == 0 and bag.get_remaining_tiles() == 0):
 
-        #Displays whose turn it is, the current board, and the player's rack.
+        #Console operations to print current status of game.
         print("\nRound " + str(round_number) + ": " + player.get_name() + "'s turn \n")
         print(board.get_board())
         print("\n" + player.get_name() + "'s Letter Rack: " + player.get_rack_str())
 
+        #Initialises required variables for User(s) / AI play.
         text=""
         word_to_play=""
         word=""
         direction=""
 
 
+        ### Displays turns on screen.
         pygame.draw.rect(screen, DGREEN, pygame.Rect(1920 - 200, 1080/2, 200, 200))
         userTurnText = my_font.render(player.get_name()+"'s turn",True,(255,255,0))
         screen.blit(userTurnText, (1920 - 200, 1080/2))
@@ -603,10 +588,12 @@ def turn(player, board, bag):
         pygame.draw.rect(screen, DGREEN, pygame.Rect(725, 7/550, 30, 30))
         textScore2 = my_font.render(str(players[1].get_score()),True,(255,55,32))
         screen.blit(textScore2, (1920/2 +10, 150))
-            
+        ###
+
+        #Variable to manage if user text-input box is accessible.
         selectBox=1
 
-
+        #Updates screen.
         clock.tick(60)
         pygame.display.flip()
         pygame.display.update()
@@ -614,7 +601,7 @@ def turn(player, board, bag):
 ########################### USER TURN ###########################
 
 
-        
+        #Such that the turn is the user's, prompt to type a word on screen.
         if player.get_name() == "User":
             userTurnText = my_font.render("Type a word.",True,(255,255,0))
             
@@ -622,10 +609,12 @@ def turn(player, board, bag):
             clock.tick(60)
             pygame.display.update()
 
-            
+
+            #Such that the text-box is activated.
             while(selectBox==1):
                 
 
+                #Display the textbox.
                 textSurf = my_font.render(text,True,(255,255,255))
                 textBox = pygame.Rect(1920/8,1080/2,250,50)
                 pygame.draw.rect(screen,(CREAM),textBox,2)
@@ -636,19 +625,27 @@ def turn(player, board, bag):
                 
 
 
-        
+                #Loop to detect player input and actions.
                 for event in pygame.event.get():
+                    #Such that the length of the text-box input 'text' is no greater that 20 characters.
+                    #In the case that this is true, reset the text box.
                     if len(text) > 20:
                         text = ""
                         pygame.draw.rect(screen, DGREEN, pygame.Rect(1920/8, 1080/2, 250, 50))
-                        
-                        pygame.display.flip()
-                        
 
+                        #Update screen.
+                        pygame.display.flip()
                         clock.tick(60)
                         pygame.display.update()
+
+
+
+                    #Get the rack of the player and render it to the screen.
                     rack=player.get_rack_str()
                     textRack = my_font2.render(rack,True,BLACK)
+
+                    #Handles key presses to display to the textbox.
+                    
                     if event.type == pygame.KEYDOWN:
                         
                         screen.blit(textSurf,(1920/8 + 10,1080/2 + 10,250,50))
@@ -660,37 +657,47 @@ def turn(player, board, bag):
                                 text=""
                                 pygame.draw.rect(screen, DGREEN, pygame.Rect(1920/8, 1080/2, 250, 50))
 
+                                #Update the screen.
                                 pygame.display.flip()
-                                
-
                                 clock.tick(60)
                                 pygame.display.update()
-                            if event.key == pygame.K_ESCAPE:
+
+
+                            #Quit if backspace is pressed.
+                            elif event.key == pygame.K_ESCAPE:
+                                
                                 pygame.quit()
                                 quit()
 
 
+                                #Update display.
                                 pygame.display.update()
 
 
                             else:
                                 text += event.unicode
-                                #print(text)
-                            if event.key == pygame.K_RETURN:  # <-- key instead of type
+
+                               
+                            if event.key == pygame.K_RETURN:
                                 word_to_play=text
                                 word_to_play=word_to_play.strip()
                                 word_to_play=word_to_play.upper()
                                 text=""
                                 selectBox=0
-                            if event.key == pygame.K_ESCAPE:
-                                exit
+                            #If enter is pressed on the textbox, initialises that this is the 'word_to_play', in variable form which is stripped of spaces ...
+                            #... and made upper-case.
+                            #Textbox text set to default state and text-box de-activated.
 
                             
-                    
+                    #Display the textrack and update the screen
                     screen.blit(textRack,(1920/2 - 85, 1000))
                     clock.tick(60)
                     pygame.display.flip()
                     pygame.display.update()
+
+            
+            #This portion of code serves to handle the clicks of the player once the word is entered.
+            #The user must click a tile to place their chosen word.
 
             click=False
             pygame.draw.rect(screen, (DGREEN), pygame.Rect(1920/2 - 100, 50, 600, 50))
@@ -698,10 +705,15 @@ def turn(player, board, bag):
             screen.blit(userTurnText, (1920/2 - 50, 50))
             clock.tick(60)
             pygame.display.update()
+
+
+            #Loops until a click is detected.
             while(True):
                 
                 for event in pygame.event.get():
                     print("Click tile")
+                    #Using pygames mouse-down detection to gather the x/y co-ordinates of the click ...
+                    #... and translate it to the 2d array 'grid' representing the 'col' and 'row' location
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         print("")
                         pos = pygame.mouse.get_pos()
@@ -721,15 +733,18 @@ def turn(player, board, bag):
                 if click == True:
                     break
 
-            #col = input("Column number: ")
-            #row = input("Row number: ")
-            #if (col == "" or row == "") or (col not in [str(x) for x in range(15)] or row not in [str(x) for x in range(15)]):
-                #location = [-1, -1]
-           # else:
+            #If the click has been registered, the column and row integers are translated to string variables ...
+            #... and the location is set for the word.
+
             location = [int(row), int(col)]
             click=False
+
+
+
+            #This portion of code serves to handle the direction of choice for the player once the word is entered.
+            #The user must click a tile to place their chosen word.
             pygame.draw.rect(screen, (DGREEN), pygame.Rect(1920/2 - 100 , 50, 600, 40))
-            userTurnText = my_font.render("Select a direction. (DOWN/RIGHT)",True,(255,255,0))
+            userTurnText = my_font.render("Select a direction. (Click the right side of the screen for RIGHT or the left side of the screen for DOWN)",True,(255,255,0))
             screen.blit(userTurnText, (1920/2 - 100 , 50))
             clock.tick(60)
             pygame.display.update()
@@ -744,8 +759,8 @@ def turn(player, board, bag):
                             direction="down"
                         if pos[0] > 720:
                             direction="right"
-                                
-                        
+                    #Using pygames mouse-down detection to gather the x/y co-ordinates of the click ...
+                    #... If the user clicks the right side of the screen, RIGHT is passed as the direction, or the left side of the screen for DOWN.
                         click=True
                     clock.tick(60)
                     pygame.display.flip()
@@ -756,15 +771,26 @@ def turn(player, board, bag):
 
 
 ########################### ARTIFICIAL INTELLIGENCE TURN ###########################
-                
+
+
+        #AI's turn       
         if player.get_name() == "AI":
+            #Displays that the AI is thinking as there is a delay when it searches for potential words.
             pygame.draw.rect(screen, (DGREEN), pygame.Rect(1920/2 - 100, 50, 600, 50))
             userTurnText = my_font.render("AI is thinking.",True,(255,255,0))
             screen.blit(userTurnText, (1920/2 - 50, 50))
             clock.tick(60)
             pygame.display.update()
+
+            
             Z=[]
+            #Z: array to hold valid dictionary words it creates when trying different combinations to potentially place on the board.
             accept=False
+            #Variable to determine is a valid word is found.
+
+            #1. Shuffles its words, and words on the board using shuffleList and tileArr (which holds the current letters on the board).
+            #2. Takes a sample of this (between 2 and 7 characters long)
+            #3. Formats this word.
             for i in range (0,randint(1000,2500)):
                 shuffleList=player.get_rack_list()
                 shuffleList=shuffleList+tileArr
@@ -777,12 +803,24 @@ def turn(player, board, bag):
                 word_to_play=result2
                 word_to_play=word_to_play.strip()
                 word_to_play=word_to_play.upper()
+            #4. Checks if the word is within the dictionary.
                 if word_to_play in open("dic.txt").read().splitlines():
                     Z.append(word_to_play)
+            #5. ... If so, append it to Z.
+
+
             Z.sort(key=len)
             Z.reverse()
+            
+            #Sort Z (the potential words to play) in length order, from longest to shortest.
+
+
+            #This portion of the code serves to check each potential word, (for X in Z), for its validity to be played.
             checkerAI=False
             counter=0
+
+            #Nested for loops serve to check each location on the board, using row__ and col__, to see which of the potential words can be played.
+            #For each location, it is tried downwards and rightwards.
             for X in Z:
                 checkerAI=False
                 counter=counter+1
@@ -799,21 +837,23 @@ def turn(player, board, bag):
                                 directionAI="down"
                             if T1 ==2:
                                 directionAI="right"
-                            #print(X,col__,row__)
+
+
+                                
                             wordAI = Word(X, [row__,col__], player, directionAI, board.board_array())
                             checkerAI=wordAI.check_word()
                             if checkerAI == "Error: invalid.":
                                 break
+                            #Instantiates a Word class as wordAI, with required parameters.
+                            #From here, checkerAI uses the check_word function on the word to see if its valid.
+                            #If it is invalid, break from this loop.
 
                             
 
-                            #print(checkerAI)
+    
                             if checkerAI !=True:
                                     t=1
-                                    #print(X)
-                                    #print(wordAI.location)
-                                    #print(player)
-                                    #print(wordAI.direction)
+                                    #Do nothing if checkerAI returns an error.
                             else:
                                     print('Valid')
                                     location=[row__,col__]
@@ -824,6 +864,9 @@ def turn(player, board, bag):
                                     accept=True
                                     print(word_to_play, row, col, direction)
                                     break
+                                #If checkerAI returns true, the word is valid ...
+                                #... set the required variables for word class instantiation including col, row, direction and word_to_play
+                                #set accept to True and break the loops.
                             if counter%500 == 0:
                                 print(X,wordAI.location,wordAI.direction,checkerAI)
                         if accept==True:
@@ -840,25 +883,24 @@ def turn(player, board, bag):
                                 
 
                                                             
-            
+            #Update display.
             clock.tick(60)
             pygame.display.flip()
             pygame.display.update()
 
                 
-
+################################MAIN CODE FOR TURN###############################
             
         print(word_to_play, row, col, direction)
+        #Instantiate a new word class instance object as the word to play, with given set parameters, for the current user turn (including AI)
         word = Word(word_to_play, location, player, direction, board.board_array())
-        #print('done')
-        #turn(player,board,bag)
         clock.tick(60)
         pygame.display.flip()
         pygame.display.update()
         print(board.board_array())
+
+        #Utilises the word instance's check_word method to finally validate the word.
         checker=word.check_word()
-        #If the first word throws an error, creates a recursive loop until the information is given correctly.
-        #print('checking')
         if checker !=True:
             print(checker)
             print(word_to_play)
@@ -869,30 +911,24 @@ def turn(player, board, bag):
         else:
             print('Valid')
 
-            
-            
-
-            
-            #word.set_word(word_to_play)
-            #location = []
-            #col = input("Column number: ")
-            #row = input("Row number: ")
+            #Initalises the placement of the word.
             if (col == "" or row == "") or (col not in [str(x) for x in range(15)] or row not in [str(x) for x in range(15)]):
                 location = [-1, -1]
             else:
                 word.set_location([int(row), int(col)])
                 location = [int(row), int(col)]
-            #screen.fill(BLACK)
-         
-            #board.get_board()
+
 
          
-            # Limit to 60 frames per second
+            #Update screen
             clock.tick(60)
             pygame.display.flip()
             pygame.display.update()
-        #If the user has confirmed that they would like to skip their turn, skip it.
-        #Otherwise, plays the correct word and prints the board.
+            
+        #If the word string has been entered, or set, as nothing, the turn is skipped,
+        #... otherwise, the word is placed using the board class's place_word method,
+        #... required variables are updated and the score is calculated.
+            
         if word.get_word() == "":
             print("Your turn has been skipped.")
             skipped_turns += 1
@@ -912,56 +948,64 @@ def turn(player, board, bag):
         #Prints the current player's score
         print("\n" + player.get_name() + "'s score is: " + str(player.get_score()))
 
-        #Gets the next player.
+        #Gets the next player, setting up for the next turn.
+        #If all players have played, the next round is played.
+        
         if players.index(player) != (len(players)-1):
             player = players[players.index(player)+1]
         else:
             player = players[0]
             round_number += 1
 
-        #Recursively calls the function in order to play the next turn.
+        #Recursively calls the turn function to act as the game loop.
         word=""
         word_to_play=""
         turn(player, board, bag)
 
-    #If the number of skipped turns is over 6 or the bag has both run out of tiles and a player is out of tiles, end the game.
+    #Ends the game if the bag has run out of tiles and the player's have run out of tiles.
     else:
         end_game()
 
 def start_game():
-    #Begins the game and calls the turn function.
+    #Starts the game and instantiates the board and bag objects.
+    
     global round_number, players, skipped_turns
     board = Board()
     bag = Bag()
 
-    #Asks the player for the number of players.
+    #Number of players setting.
     num_of_players = 2
 
-    #Welcomes players to the game and allows players to choose their name.
+    #Adds the players to the game and passes the bag as an argument to all players.
     players = []
     players.append(Player(bag))
     players[0].set_name("User")
     players.append(Player(bag))
     players[1].set_name("AI")
 
-    #Sets the default value of global variables.
+    #Initialises global variables.
     round_number = 1
     skipped_turns = 0
     current_player = players[0]
     turn(current_player, board, bag)
 
 def end_game():
-    #Forces the game to end when the bag runs out of tiles.
+    #Ends the game when the bag runs out of tiles.
     global players
     highest_score = 0
     winning_player = ""
+    #Gets name of player with highest score and displays it to the screen.
     for player in players:
         if player.get_score > highest_score:
             highest_score = player.get_score()
             winning_player = player.get_name()
-    print("The game is over! " + winning_player + ", you have won!")
+    while(True):
+        screen.fill(DGREEN)
+        endGameText=("The game is over! " + winning_player + ", has won!")
+        userTurnText = my_font.render(endGameText,True,(255,255,0))
+        screen.blit(userTurnText, (1920/2 - 50, 500))
+        clock.tick(60)
+        pygame.display.update()
 
-    if input("\nWould you like to play again? (y/n)").upper() == "Y":
-        start_game()
-
+#Starts game
 start_game()
