@@ -1,0 +1,7 @@
+###
+
+This directory contains a couple of proof of concepts, nothing major.
+
+The main code can be located from the previous directory, "!2 PYTHON FILES", or to play, the "!1 PLAY (.exe)".
+
+###
