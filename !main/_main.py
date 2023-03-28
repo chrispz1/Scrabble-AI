@@ -82,7 +82,7 @@ pygame.init()
  
 #Window size for pygame 
 WINDOW_SIZE = [1920, 1080]
-screen = pygame.display.set_mode(WINDOW_SIZE, pygame.FULLSCREEN)
+screen = pygame.display.set_mode(WINDOW_SIZE, pygame.RESIZABLE)
  
 #Set title for screen
 pygame.display.set_caption("Scrabble Game")
@@ -690,7 +690,7 @@ def turn(player, board, bag):
 
                             
                     #Display the textrack and update the screen
-                    screen.blit(textRack,(1920/2 - 85, 1000))
+                    screen.blit(textRack,(1920/2 - 85, 960))
                     clock.tick(60)
                     pygame.display.flip()
                     pygame.display.update()
